@@ -1,0 +1,19 @@
+node_modules
+
+# Coverage reports
+coverage
+reports
+
+# API keys and secrets
+.env
+
+dist
+
+.eslintcache
+
+.idea
+# vs code history
+.history/
+
+# jest
+/.jest_cache

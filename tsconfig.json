@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es2019",
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": true,
+    "strict": true,
+    "sourceMap": true,
+    "incremental": true,
+    "composite": true,
+    "noEmitOnError": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+      "src/**/*",
+      "src/**/*.json",
+      "test/**/*",
+      "index.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "references": [
+  ]
+}
