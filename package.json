@@ -1,6 +1,6 @@
 {
   "name": "@salto-io/salesforce-formula-parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "Apache-2.0",
   "description": "Salto Salesforce formula parser",
   "repository": {
@@ -13,8 +13,7 @@
   "files": [
     "src",
     "index.ts",
-    "tsconfig.json",
-    "*.js"
+    "tsconfig.json"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

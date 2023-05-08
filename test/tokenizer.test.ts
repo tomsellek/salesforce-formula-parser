@@ -26,6 +26,9 @@ describe('extractFormulaIdentifiers', () => {
     it('should skip string literals', () => {
       expect(extractFormulaIdentifiers('\'a\' + \'b\'')).toHaveLength(0)
     })
+    it('should skip string literals even if they have escaped quotes', () => {
+      expect(extractFormulaIdentifiers('\'\\\'a\' + "\\"b"')).toHaveLength(0)
+    })
     it('should skip function calls', () => {
       expect(extractFormulaIdentifiers('Function()')).toHaveLength(0)
     })
@@ -43,6 +46,10 @@ describe('extractFormulaIdentifiers', () => {
     it('should extract identifier when it`s part of arithmetic expression', () => {
       expect(extractFormulaIdentifiers('"blah" & SomeField__c')).toEqual(['SomeField__c'])
       expect(extractFormulaIdentifiers('SomeField__c * 0.2')).toEqual(['SomeField__c'])
+    })
+    it('should extract identifier when its name contains a keyword', () => {
+      expect(extractFormulaIdentifiers('trueField && TruE0')).toEqual(['trueField', 'TruE0'])
+      expect(extractFormulaIdentifiers('maybeFalse__c')).toEqual(['maybeFalse__c'])
     })
   })
   describe('when there are identifiers with complex names', () => {

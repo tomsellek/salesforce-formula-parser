@@ -16,22 +16,37 @@
 
 import moo from 'moo'
 
-const formulaLexer = moo.compile({
-  whitespace: { match: /[\s\t\n\r]+/, lineBreaks: true },
-  comment: /\/\/.*?$/,
-  number: /[0-9]+(?:\.[0-9]*)?(?![a-zA-Z_$[])/,
-  string_dquotes: /"[^"]*"/, // TODO escapes
-  string_squotes: /'[^']*'/, // TODO escapes
-  boolean: /[tT][rR][uU][eE]|[fF][aA][lL][sS][eE]/,
-  identifier_prefix: /[[$](?!\s)/,
-  identifier_part: /[a-zA-Z_]\w*/,
-  identifier_suffix: /(?<!\s)]/,
-  lparen: '(',
-  rparen: ')',
-  comma: ',',
-  dot: '.',
-  bop: ['+', '-', '/', '*', '=', '==', '&&', '||', '&', '|'],
-  uop: '!',
+const formulaLexer = moo.states({
+  main: {
+    whitespace: {
+      match: /[\s\t\n\r]+/,
+      lineBreaks: true,
+    },
+    comment: /\/\/.*?$/,
+    number: /[0-9]+(?:\.[0-9]*)?(?![a-zA-Z_$[])/,
+    string_start_dquote: { match: '"', next: 'string_dquote' },
+    string_start_squote: { match: '\'', next: 'string_squote' },
+    boolean: /(?:[tT][rR][uU][eE]|[fF][aA][lL][sS][eE])(?![a-zA-Z_0-9])/,
+    identifier_prefix: /[[$](?!\s)/,
+    identifier_part: /[a-zA-Z_]\w*/,
+    identifier_suffix: /(?<!\s)]/,
+    lparen: '(',
+    rparen: ')',
+    comma: ',',
+    dot: '.',
+    bop: ['+', '-', '/', '*', '=', '==', '&&', '||', '&', '|'],
+    uop: '!',
+  },
+  string_dquote: {
+    escaped_char: /\\./,
+    string_contents: { match: /[^\\"]/, lineBreaks: true },
+    string_end_dquote: { match: '"', next: 'main' },
+  },
+  string_squote: {
+    escaped_char: /\\./,
+    string_contents: { match: /[^\\']/, lineBreaks: true },
+    string_end_squote: { match: '\'', next: 'main' },
+  },
 })
 
 export const extractFormulaIdentifiers = (formula: string): string[] => {
