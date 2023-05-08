@@ -15,3 +15,4 @@
 */
 
 export { parseFormulaIdentifier, FormulaIdentifierInfo, IdentifierType } from './src/parse'
+export { extractFormulaIdentifiers } from './src/tokenizer'
