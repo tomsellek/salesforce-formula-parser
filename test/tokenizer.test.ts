@@ -69,4 +69,12 @@ describe('extractFormulaIdentifiers', () => {
       expect(extractFormulaIdentifiers('[SomeField__c].Field2 * 0.2')).toEqual(['[SomeField__c].Field2'])
     })
   })
+  describe('when there`s more than one identifier', () => {
+    it('Should only extract unique identifiers', () => {
+      expect(extractFormulaIdentifiers('IF(SomeField__c, SomeField__c, SomeField__c)')).toEqual(['SomeField__c'])
+    })
+    it('Should not reorder identifiers', () => {
+      expect(extractFormulaIdentifiers('IF(zzz, zzz, bbb)')).toEqual(['zzz', 'bbb'])
+    })
+  })
 })

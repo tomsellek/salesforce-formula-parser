@@ -15,6 +15,7 @@
 */
 
 import moo from 'moo'
+import _ from 'lodash'
 
 const formulaLexer = moo.states({
   main: {
@@ -79,5 +80,5 @@ export const extractFormulaIdentifiers = (formula: string): string[] => {
   if (currentIdentifier) {
     identifiers.push(currentIdentifier)
   }
-  return identifiers
+  return _.uniq(identifiers)
 }
