@@ -32,6 +32,14 @@ describe('extractFormulaIdentifiers', () => {
     it('should skip function calls', () => {
       expect(extractFormulaIdentifiers('Function()')).toHaveLength(0)
     })
+    it('should skip comments', () => {
+      const formula = `
+      /*identifier*/
+      // identifier identifier
+      /* identifier */
+      `
+      expect(extractFormulaIdentifiers(formula)).toHaveLength(0)
+    })
   })
   describe('when there are identifiers', () => {
     it('should extract a simple identifier', () => {
@@ -75,6 +83,24 @@ describe('extractFormulaIdentifiers', () => {
     })
     it('Should not reorder identifiers', () => {
       expect(extractFormulaIdentifiers('IF(zzz, zzz, bbb)')).toEqual(['zzz', 'bbb'])
+    })
+    it('Should not merge identifiers across whitespace', () => {
+      expect(extractFormulaIdentifiers('identifier1 identifier2')).toEqual(['identifier1', 'identifier2'])
+    })
+    it('Should not extract identifiers from comments', () => {
+      const formula = `
+      IF( ISBLANK(SomeField__c),
+      /*
+      Some comment
+      */
+      /***
+      Some comment
+      here too ***/
+      SomeOtherField,
+      // One-line comment
+      YetAnotherField)
+      `
+      expect(extractFormulaIdentifiers(formula)).toEqual(['SomeField__c', 'SomeOtherField', 'YetAnotherField'])
     })
   })
 })

@@ -23,7 +23,8 @@ const formulaLexer = moo.states({
       match: /[\s\t\n\r]+/,
       lineBreaks: true,
     },
-    comment: /\/\/.*?$/,
+    one_line_comment: /\/\/.*?$/,
+    multi_line_comment_start: { match: /\/\*/, next: 'comment' },
     number: /[0-9]+(?:\.[0-9]*)?(?![a-zA-Z_$[])/,
     string_start_dquote: { match: '"', next: 'string_dquote' },
     string_start_squote: { match: '\'', next: 'string_squote' },
@@ -48,6 +49,11 @@ const formulaLexer = moo.states({
     string_contents: { match: /[^\\']/, lineBreaks: true },
     string_end_squote: { match: '\'', next: 'main' },
   },
+  comment: {
+    comment_end: { match: /\*\//, next: 'main' },
+    comment_contents: { match: /[^*]+/, lineBreaks: true },
+    comment_contents_asterisk: /\*(?!\/)/,
+  },
 })
 
 export const extractFormulaIdentifiers = (formula: string): string[] => {
@@ -63,13 +69,28 @@ export const extractFormulaIdentifiers = (formula: string): string[] => {
   const identifiers: string[] = []
   formulaLexer.reset(formula)
   let currentIdentifier = ''
+  /*
+  We need to distinguish between <identifier><whitespace><lparen> and <identifier><whitespace><identifier> - the first
+  is a function call and should be ignored whereas the second is two identifiers.
+  Since we read one token at a time, we don't know, when we read the whitespace, whether we should add an identifier to
+  the return value or not - we only know an identifier was finished.
+  */
+  let identifierEnded = false
   for (const token of formulaLexer) {
+    if (identifierEnded && isIdentifier(token)) {
+      identifiers.push(currentIdentifier)
+      currentIdentifier = ''
+    }
+    identifierEnded = false
+
     if (isIdentifierStart(token)) {
       currentIdentifier += token.value
     } else if (currentIdentifier && isIdentifierMiddleOrEnd(token)) {
       currentIdentifier += token.value
     }
-    if (currentIdentifier && !isIdentifier(token) && token.type !== 'whitespace') {
+    if (currentIdentifier && token.type === 'whitespace') {
+      identifierEnded = true
+    } else if (currentIdentifier && !isIdentifier(token)) {
       if (token.type !== 'lparen') {
         // it's not a function call
         identifiers.push(currentIdentifier)
