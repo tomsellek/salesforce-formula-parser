@@ -32,6 +32,9 @@ describe('extractFormulaIdentifiers', () => {
     it('should skip function calls', () => {
       expect(extractFormulaIdentifiers('Function()')).toHaveLength(0)
     })
+    it('should skip relational operators', () => {
+      expect(extractFormulaIdentifiers('1 > 2 && 3 < 4 && 5<>6&&7!=8&&9==9')).toHaveLength(0)
+    })
     it('should skip comments', () => {
       const formula = `
       /*identifier*/
@@ -101,6 +104,14 @@ describe('extractFormulaIdentifiers', () => {
       YetAnotherField)
       `
       expect(extractFormulaIdentifiers(formula)).toEqual(['SomeField__c', 'SomeOtherField', 'YetAnotherField'])
+    })
+    it('should extract identifiers from colon expressions', () => {
+      // https://salesforce.stackexchange.com/questions/344851/what-does-a-colon-mean-in-a-formula-field
+      const formula = `IF( ISBLANK( Owner:Queue.OwnerId )
+      , Owner:User.FirstName & " " & Owner:User.LastName
+      , Owner:Queue.QueueName)`
+      expect(extractFormulaIdentifiers(formula)).toEqual(['Owner',
+        'Queue.OwnerId', 'User.FirstName', 'User.LastName', 'Queue.QueueName'])
     })
   })
 })
