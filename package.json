@@ -1,6 +1,6 @@
 {
   "name": "@salto-io/salesforce-formula-parser",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "Apache-2.0",
   "description": "Salto Salesforce formula parser",
   "repository": {
@@ -11,9 +11,7 @@
     "access": "public"
   },
   "files": [
-    "src",
-    "index.ts",
-    "tsconfig.json"
+    "dist"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,8 +22,7 @@
     "build-ts": "tsc -b",
     "watch-ts": "tsc -b -w",
     "lint": "eslint --cache --max-warnings 0 --ext .js,.jsx,.ts,.tsx ./",
-    "lint-fix": "yarn lint --fix",
-    "postinstall": "tsc --outDir ./dist"
+    "lint-fix": "yarn lint --fix"
   },
   "dependencies": {
     "lodash": "^4.17.21",
