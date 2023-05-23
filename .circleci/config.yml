@@ -1,0 +1,78 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:14.15
+
+    working_directory: /mnt/ramdisk/project
+
+    steps:
+      - checkout
+
+      - run: yarn config set cache-folder /mnt/ramdisk/yarn-cache
+
+      - run: yarn
+
+      - run:
+          # As a workaround to the --frozen-lockfile flag not working with workspaces
+          # (see: https://github.com/yarnpkg/yarn/issues/4098)
+          # we use a regular `yarn` and add an explicit test that the yarn.lock file is unchanged
+          name: ensure yarn.lock file is up to date
+          command: "! git diff --name-only | grep yarn.lock"
+
+      - run: yarn build
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - '*'
+  unit_test:
+    docker:
+      - image: cimg/node:14.15
+    steps:
+      - attach_workspace:
+          at: .
+
+      - run:
+          name: Run unit tests
+          command: yarn test -w 4 --coverage=false--reporters=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT: "reports/unittests/test-results.xml"
+
+      - store_test_results:
+          path: reports
+
+  publish_on_version_change:
+    docker:
+      - image: cimg/node:14.15
+
+    steps:
+      - attach_workspace:
+          at: .
+
+      - add_ssh_keys:
+          fingerprints:
+            - "49:dd:95:76:13:c0:cd:9d:75:48:b0:30:5c:3c:4c:17"
+
+      - run:
+          name: Release version
+          command: ./.circleci/scripts/release_version.sh << pipeline.git.base_revision >>
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - build
+      - unit_test:
+          requires:
+            - build
+      - publish_on_version_change:
+          context: salto
+          filters:
+            branches:
+              only:
+                - main
+          requires:
+            - build
+            - unit_test
