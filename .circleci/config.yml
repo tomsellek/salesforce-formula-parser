@@ -36,7 +36,7 @@ jobs:
 
       - run:
           name: Run unit tests
-          command: yarn test -w 4 --coverage=false
+          command: yarn test --coverage=false
 
   publish_on_version_change:
     docker:
