@@ -40,11 +40,13 @@ describe('extractFormulaIdentifiers', () => {
       /*identifier*/
       // identifier identifier
       /* identifier */
+      
       /*
       identifier
       identifier
       identifier
       */
+      
       `
       expect(extractFormulaIdentifiers(formula)).toHaveLength(0)
     })
@@ -102,9 +104,11 @@ describe('extractFormulaIdentifiers', () => {
       /*
       Some comment
       */
+      
       /***
       Some comment
       here too ***/
+      
       SomeOtherField,
       // One-line comment
       YetAnotherField)
