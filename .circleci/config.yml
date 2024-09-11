@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/node:14.15
+      - image: cimg/node:18.9
 
     working_directory: /mnt/ramdisk/project
 
