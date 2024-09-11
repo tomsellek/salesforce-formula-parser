@@ -15,8 +15,21 @@
 */
 import _ from 'lodash'
 import {
-  isCPQRelationship, isCustom, isCustomLabel, isCustomMetadata, isCustomSetting, isObjectType, isParent, isParentField,
-  isProcessBuilderIdentifier, isRelationshipField, isSpecialPrefix, isStandardRelationship, isUserField,
+  isCPQRelationship,
+  isCustom,
+  isCustomLabel,
+  isCustomMetadata,
+  isCustomSetting,
+  isObjectType,
+  isParent,
+  isParentField,
+  isProcessBuilderIdentifier,
+  isNameWithComponents,
+  isSpecialPrefix,
+  isStandardRelationship,
+  isUserField,
+  isGlobalInstance,
+  RELATIONSHIP_SUFFIX,
 } from './grammar'
 import {
   createApiName, getField, getObject, parts, canonicalizeProcessBuilderIdentifier, transformToId,
@@ -25,7 +38,7 @@ import {
 import { mapCPQField } from './cpq'
 
 export type IdentifierType = 'customField'|'standardField'|'customObject'|'standardObject'|'customLabel'
-  |'customSetting'|'customMetadataTypeRecord'|'customMetadataType'|'unknownRelationship'
+  |'customSetting'|'customMetadataTypeRecord'|'customMetadataType'|'unknownRelationship'|'instance'
 
 export type FormulaIdentifierInfo = {
   type: IdentifierType
@@ -148,6 +161,8 @@ const parseRelationship = (variableName: string, originalObject: string): Formul
 
     const isLastField = (fields.length - 1 === index)
 
+    // TODO if this is not the last field, then we change the suffix and isCPQRelationship will always be false.
+    // - why can't a non-last field not be a CPQ relationship?
     if (!isLastField) {
       if (isStandardRelationship(fieldName)) {
         fieldName = transformToId(fieldName)
@@ -189,10 +204,25 @@ const parseRelationship = (variableName: string, originalObject: string): Formul
     })
 }
 
+const parseInstance = (variableName: string): FormulaIdentifierInfo[] => {
+  if ((variableName.match(/\./g) || []).length > 2) {
+    return []
+  }
+  if (getObject(variableName).endsWith(RELATIONSHIP_SUFFIX)) {
+    return []
+  }
+  return [{
+    type: 'instance',
+    instance: isGlobalInstance(variableName) ? getField(variableName) : variableName,
+  }]
+}
+
 export const parseFormulaIdentifier = (variableName: string, originalObject: string): FormulaIdentifierInfo[] => {
   // this order matters, we have to evaluate object types before anything else because the syntax can be extremely
   // similar to other types
-
+  if (isGlobalInstance(variableName)) {
+    return parseInstance(getField(variableName))
+  }
   if (isObjectType(variableName)) {
     return parseObjectType(variableName)
   }
@@ -205,8 +235,8 @@ export const parseFormulaIdentifier = (variableName: string, originalObject: str
   if (isCustomSetting(variableName)) {
     return parseCustomSetting(variableName)
   }
-  if (isRelationshipField(variableName)) {
-    return parseRelationship(variableName, originalObject)
+  if (isNameWithComponents(variableName)) {
+    return [parseRelationship(variableName, originalObject), parseInstance(variableName)].flat()
   }
   return parseFieldIdentifier(variableName, originalObject)
 }

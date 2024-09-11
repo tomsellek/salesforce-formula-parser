@@ -35,6 +35,7 @@ module.exports = {
     collectCoverageFrom: [
         '**/*.ts',
         '**/*.tsx',
+        '!**/*.d.ts',
         '!**/node_modules/**',
         '!*.config.ts',
         '!coverage/**',
@@ -44,10 +45,10 @@ module.exports = {
     ],
     coverageThreshold: {
       'global': {
-        branches: 70,
-        functions: 94,
-        lines: 95,
-        statements: 95,
+        branches: 83,
+        functions: 97,
+        lines: 96,
+        statements: 97,
       },
     },
     setupFilesAfterEnv: ["jest-extended/all"],

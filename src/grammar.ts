@@ -17,14 +17,18 @@
 import { getField, getObject, parts } from './utils'
 import { CPQ_NAMESPACE, CUSTOM_METADATA_SUFFIX, NAMESPACE_SEPARATOR, SALESFORCE_CUSTOM_SUFFIX } from './constants'
 
-const RELATIONSHIP_SUFFIX = '__R'
+export const RELATIONSHIP_SUFFIX = '__R'
 const USER_FIELDS_REGEX = new RegExp(/^OWNER|MANAGER|CREATEDBY|LASTMODIFIEDBY$/, 'i')
+// -- https://help.salesforce.com/s/articleView?id=sf.dev_understanding_global_variables.htm&type=5
+// -- The following is incomplete and is missing things like $RecordType
 const CUSTOM_LABEL_PREFIX_REGEX = new RegExp(/^\$LABEL\./, 'i')
 const CUSTOM_SETTING_PREFIX_REGEX = new RegExp(/^\$SETUP\./, 'i')
 const OBJECT_TYPE_PREFIX_REGEX = new RegExp(/^\$OBJECTTYPE\./, 'i')
+const SPECIAL_PREFIXES_REGEX = new RegExp(/^\$USER|\$PROFILE|\$ORGANIZATION|\$USERROLE|\$SYSTEM/, 'i')
+// --
+const GLOBAL_PREFIX_REGEX = new RegExp(/^GLOBAL\./, 'i')
 const SELF_REFERENTIAL_PARENT_FIELD_REGEX = new RegExp(/^parentid$/, 'i')
 const SELF_REFERENTIAL_PARENT_OBJECT_REGEX = new RegExp(/^parent$/, 'i')
-const SPECIAL_PREFIXES_REGEX = new RegExp(/^\$USER|\$PROFILE|\$ORGANIZATION|\$USERROLE|\$SYSTEM/, 'i')
 
 export const isUserField = (value: string): boolean => {
   const prefix = parts(value)[0]
@@ -42,8 +46,9 @@ export const isParent = (value: string): boolean => SELF_REFERENTIAL_PARENT_OBJE
 export const isStandardRelationship = (value: string): boolean => (
   !value.toLocaleUpperCase().endsWith(RELATIONSHIP_SUFFIX)
 )
-export const isRelationshipField = (value: string): boolean => value.includes('.')
+export const isNameWithComponents = (value: string): boolean => value.includes('.')
 export const isSpecialPrefix = (value: string): boolean => SPECIAL_PREFIXES_REGEX.test(value)
+export const isGlobalInstance = (value: string): boolean => GLOBAL_PREFIX_REGEX.test(value)
 export const isProcessBuilderIdentifier = (value: string): boolean => (
   // https://help.salesforce.com/s/articleView?id=000383560&type=1
   value.startsWith('[') && value.endsWith(']')

@@ -79,21 +79,39 @@ describe('Formula identifier parsing', () => {
     expect(types).toEqual(expect.arrayContaining(expected))
   })
 
-  it('Should parse object types correctly', () => {
-    const types = parseObjectType('$ObjectType.Center__c.Fields.My_text_field__c')
+  describe('object types', () => {
+    test('should pare regular object types correctly', () => {
+      const types = parseObjectType('$ObjectType.Center__c.Fields.My_text_field__c')
 
-    const expected = [
-      {
-        instance: 'Center__c.My_text_field__c',
-        type: 'customField',
-      },
-      {
-        instance: 'Center__c',
-        type: 'customObject',
-      },
-    ]
+      const expected = [
+        {
+          instance: 'Center__c.My_text_field__c',
+          type: 'customField',
+        },
+        {
+          instance: 'Center__c',
+          type: 'customObject',
+        },
+      ]
 
-    expect(types).toEqual(expect.arrayContaining(expected))
+      expect(types).toEqual(expect.arrayContaining(expected))
+    })
+    test('should parse custom metadata object types correctly', () => {
+      const types = parseObjectType('$ObjectType.Center__mdt.Fields.My_text_field__c')
+
+      const expected = [
+        {
+          instance: 'Center__mdt.My_text_field__c',
+          type: 'customField',
+        },
+        {
+          instance: 'Center__mdt',
+          type: 'customMetadataType',
+        },
+      ]
+
+      expect(types).toEqual(expect.arrayContaining(expected))
+    })
   })
 
   describe('Objects', () => {
@@ -517,6 +535,28 @@ describe('Formula identifier parsing', () => {
 
         expect(types).not.toEqual(expect.arrayContaining(notExpected))
       })
+    })
+  })
+  describe('Instances', () => {
+    test('should parse global instances correctly', () => {
+      const result = parseFormulaIdentifier('Global.NewOpportunity', 'SomeType')
+
+      expect(result).toEqual([
+        {
+          type: 'instance',
+          instance: 'NewOpportunity',
+        },
+      ])
+    })
+    test('should also parse dot-separated identifiers as instances', () => {
+      const result = parseFormulaIdentifier('Account.SomeQuickAction', 'SomeType')
+
+      expect(result).toEqual(expect.arrayContaining([
+        {
+          type: 'instance',
+          instance: 'Account.SomeQuickAction',
+        },
+      ]))
     })
   })
 })

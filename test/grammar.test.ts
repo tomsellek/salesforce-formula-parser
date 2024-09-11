@@ -15,7 +15,7 @@
 */
 
 import { isCustom, isStandardRelationship, isUserField, isCustomMetadata,
-  isCustomLabel, isCustomSetting, isObjectType, isRelationshipField,
+  isCustomLabel, isCustomSetting, isObjectType, isNameWithComponents,
   isSpecialPrefix, isParent, isParentField } from '../src/grammar'
 
 describe('Formula grammar', () => {
@@ -67,8 +67,8 @@ describe('Formula grammar', () => {
   })
 
   it('Should identify relationship fields', () => {
-    expect(isRelationshipField('Account.Name')).toBeTruthy()
-    expect(isRelationshipField('Name')).toBeFalsy()
+    expect(isNameWithComponents('Account.Name')).toBeTruthy()
+    expect(isNameWithComponents('Name')).toBeFalsy()
   })
 
   it('Should identify special prefixes', () => {
